@@ -112,7 +112,6 @@ class RoundPoker():
         self.n_loss = 0
         self.n_games = 0
         for i in range(n_simulacao):
-            print(i)
             self.n_games += 1
             self.deck = Deck()
             self.deck.remove_cards(self.hand_player)
@@ -123,19 +122,22 @@ class RoundPoker():
                 if ( self.hand.best_value < rival.best_value ):
                     self.n_loss += 1
                     break
-  
+        self.ways = self.n_loss/self.n_games
+            
+    def simulate_with_mean(self, n_simulation=100, n_mean=10):
+        total = np.array([])
+        for i in range(n_mean):
+            self.simulate(100)
+            print(self.ways)
+            total = np.append(total, self.ways)
+        self.ways = np.average(total)
+
     def result(self):
-        ways = self.n_loss/self.n_games
-        print("You have lost " +  str(ways) + " times in " + str(self.n_games) + " games!\n")
+        print("You have lost " +  str(self.ways) + " times in " + str(self.n_games) + " games!\n")
 
-#maos = input("Qual e a sua mao?")
-#jogadores = int(input("Quantos sao os jogadores?"))
 
-maos = 'Ah Ad'
-jogadores = 2
-
-v = RoundPoker(maos, jogadores)
-v.simulate(10000)
-v.result()
+# v = RoundPoker(maos, jogadores)
+# v.simulate(10000)
+# v.result()
 
 
