@@ -36,7 +36,7 @@ class Deck():
     def __init__(self):
         self.deck=list(range(8,60))    
 
-    def remove_cards(cards):
+    def remove_cards(self, cards):
         for i in cards: self.deck.remove(i)
 
     def take_card(self, n=1):
@@ -94,17 +94,48 @@ class Hand():
             if j > self.evaluate_hand(max_hand):
                 max_hand = i
         self.best=max_hand
+        self.best_value=self.evaluate_hand(max_hand)
 
 class RoundPoker():
     """ Cada objeto representa uma jogada de Poker
         Serao definidos numero de jogadores, flop e maos
     """
-    def __init__(self, hand_player, n=2):
-        self.deck = Deck()
-        self.deck.remove_cards(hand_player)
-        self.flop = self.deck.take_cards(5)
+    def __init__(self, hand_player, n_players=2):
+        self.hand_player = str.split(hand_player) # Remember to switch the strings
+        self.hand_player = [ dict_cards[i] for i in self.hand_player ]
+        print(hand_player)
+        self.n_players = n_players
+
+    def simulate(self, n_simulacao=1000):
+        self.n_wins = 0
+        self.n_draws = 0
+        self.n_loss = 0
+        self.n_games = 0
+        for i in range(n_simulacao):
+            print(i)
+            self.n_games += 1
+            self.deck = Deck()
+            self.deck.remove_cards(self.hand_player)
+            self.flop = self.deck.take_card(5)
+            self.hand = Hand(self.hand_player, self.flop)
+            for j in range(self.n_players):
+                rival = Hand(self.deck.take_card(2), self.flop)
+                if ( self.hand.best_value < rival.best_value ):
+                    self.n_loss += 1
+                    break
+  
+    def result(self):
+        ways = self.n_loss/self.n_games
+        print("You have lost " +  str(ways) + " times in " + str(self.n_games) + " games!\n")
+
+#maos = input("Qual e a sua mao?")
+#jogadores = int(input("Quantos sao os jogadores?"))
+
+maos = 'Ah Ad'
+jogadores = 2
+
+v = RoundPoker(maos, jogadores)
+v.simulate(10000)
+v.result()
 
 
-l = Deck()
-v = Hand(l.take_card(5),l.take_card(3))
-v.best_hand()
