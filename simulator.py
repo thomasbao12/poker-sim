@@ -3,6 +3,7 @@
 import itertools as it
 import numpy as np
 import scipy as sp
+import math
 
 # Creating a dictionary which maps cards in strings to numbers
 cards_values = list(range(2,11))
@@ -11,6 +12,17 @@ suits = ['h','d','c','s']
 cards = [ ''.join([str(x), y])  for x in cards_values for y in suits]
 
 dict_cards = dict(zip(cards, range(8,60)))
+reverse_dict_cards = {v:k for k, v in dict_cards.items()}
+
+'''
+class Card():
+
+    @property
+    
+
+    def __init__(self, string):
+        self.string = string        
+'''
 
 
 # A dictionary for Hands and its values
@@ -141,3 +153,82 @@ class RoundPoker():
 # v.result()
 
 
+# list of 2 human readable card strings such as ['Ah', '10c']
+def get_chen_formula(cards):
+
+    def get_val(card):
+        val = card[:-1]
+        if val == "A":
+            val = 14
+        elif val == "K":
+            val = 13
+        elif val == "Q":
+            val = 12
+        elif val == "J":
+            val = 11
+        else:
+            val = int(val)
+        return val
+
+    def get_suit(card):
+        return card[-1:]
+
+    def get_delta(card1, card2):
+        val1 = get_val(card1)
+        val2 = get_val(card2)
+        delta = min(
+            abs(val1 - val2),
+            abs(min(val1, val2) - (max(val1, val2) - 13))
+        )
+        return delta
+
+    score = 0
+    for card in cards:
+        val = card[:-1]
+        if val == "A":
+            val = 10
+        elif val == "K":
+            val = 8
+        elif val == "Q":
+            val = 7
+        elif val == "J":
+            val = 6
+        else:
+            val = float(val) / 2
+        score = max(val, score)
+
+    if get_val(cards[0]) == get_val(cards[1]):
+        return max(5, score * 2)
+
+    if get_suit(cards[0]) == get_suit(cards[1]):
+        score += 2
+    
+    delta = get_delta(cards[0], cards[1])
+    if delta == 1:
+        score += 1
+    elif delta == 2:
+        score -= 1
+    elif delta == 3:
+        score -= 2
+    elif delta == 4:
+        score -= 4
+    else:
+        score -= 5
+    
+    return int(math.ceil(score))
+
+# get chen score distribution
+n = 10000
+dp = 100.0 / n
+chen_formula_counts = {}
+for i in xrange(n):
+    deck = Deck()
+    cards = deck.take_card(n=2)
+    cards = [reverse_dict_cards[card] for card in cards]
+    score = get_chen_formula(cards)
+    chen_formula_counts[score] = chen_formula_counts.get(score, 0) + dp
+
+for k in sorted(chen_formula_counts.keys()):
+    print "{}, {}%".format(k, chen_formula_counts.get(k))
+
+print(chen_formula_counts)
